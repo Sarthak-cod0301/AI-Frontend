@@ -14,7 +14,9 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppResumesRouteImport } from './routes/_app.resumes'
 import { Route as AppJobDescriptionsRouteImport } from './routes/_app.job-descriptions'
+import { Route as AppHistoryRouteImport } from './routes/_app.history'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppAnalyzeRouteImport } from './routes/_app.analyze'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -40,23 +42,37 @@ const AppJobDescriptionsRoute = AppJobDescriptionsRouteImport.update({
   path: '/job-descriptions',
   getParentRoute: () => AppRoute,
 } as any)
+const AppHistoryRoute = AppHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAnalyzeRoute = AppAnalyzeRouteImport.update({
+  id: '/analyze',
+  path: '/analyze',
   getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/analyze': typeof AppAnalyzeRoute
   '/dashboard': typeof AppDashboardRoute
+  '/history': typeof AppHistoryRoute
   '/job-descriptions': typeof AppJobDescriptionsRoute
   '/resumes': typeof AppResumesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/analyze': typeof AppAnalyzeRoute
   '/dashboard': typeof AppDashboardRoute
+  '/history': typeof AppHistoryRoute
   '/job-descriptions': typeof AppJobDescriptionsRoute
   '/resumes': typeof AppResumesRoute
 }
@@ -65,21 +81,39 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_app/analyze': typeof AppAnalyzeRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/history': typeof AppHistoryRoute
   '/_app/job-descriptions': typeof AppJobDescriptionsRoute
   '/_app/resumes': typeof AppResumesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/job-descriptions' | '/resumes'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/analyze'
+    | '/dashboard'
+    | '/history'
+    | '/job-descriptions'
+    | '/resumes'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/job-descriptions' | '/resumes'
+  to:
+    | '/'
+    | '/auth'
+    | '/analyze'
+    | '/dashboard'
+    | '/history'
+    | '/job-descriptions'
+    | '/resumes'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/auth'
+    | '/_app/analyze'
     | '/_app/dashboard'
+    | '/_app/history'
     | '/_app/job-descriptions'
     | '/_app/resumes'
   fileRoutesById: FileRoutesById
@@ -127,6 +161,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppJobDescriptionsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/history': {
+      id: '/_app/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof AppHistoryRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
@@ -134,17 +175,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/analyze': {
+      id: '/_app/analyze'
+      path: '/analyze'
+      fullPath: '/analyze'
+      preLoaderRoute: typeof AppAnalyzeRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppAnalyzeRoute: typeof AppAnalyzeRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppHistoryRoute: typeof AppHistoryRoute
   AppJobDescriptionsRoute: typeof AppJobDescriptionsRoute
   AppResumesRoute: typeof AppResumesRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAnalyzeRoute: AppAnalyzeRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppHistoryRoute: AppHistoryRoute,
   AppJobDescriptionsRoute: AppJobDescriptionsRoute,
   AppResumesRoute: AppResumesRoute,
 }
