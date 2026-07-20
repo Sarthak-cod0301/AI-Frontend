@@ -268,3 +268,9 @@ function humanize(key: string) {
     .trim()
     .replace(/^\w/, (c) => c.toUpperCase());
 }
+
+/** Internal DB identifiers we never surface in the UI. */
+function isHiddenIdField(key: string) {
+  const lower = key.toLowerCase();
+  return lower === "id" || lower === "resumeid" || lower === "resume_id";
+}
