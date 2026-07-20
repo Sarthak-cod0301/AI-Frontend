@@ -22,10 +22,12 @@ export function ResultDetail({ data }: { data: any }) {
   const scalars: Record<string, any> = {};
   const objects: Record<string, any> = {};
   for (const [k, v] of Object.entries(data)) {
+    if (isHiddenIdField(k)) continue;
     if (Array.isArray(v)) arrays[k] = v;
     else if (v !== null && typeof v === "object") objects[k] = v;
     else scalars[k] = v;
   }
+
 
   return (
     <div className="space-y-6">
