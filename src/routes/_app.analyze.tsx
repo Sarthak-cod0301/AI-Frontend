@@ -16,6 +16,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { ResultDetail } from "@/components/result-detail";
 
 export const Route = createFileRoute("/_app/analyze")({
   component: AnalyzePage,
