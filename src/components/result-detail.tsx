@@ -22,10 +22,12 @@ export function ResultDetail({ data }: { data: any }) {
   const scalars: Record<string, any> = {};
   const objects: Record<string, any> = {};
   for (const [k, v] of Object.entries(data)) {
+    if (isHiddenIdField(k)) continue;
     if (Array.isArray(v)) arrays[k] = v;
     else if (v !== null && typeof v === "object") objects[k] = v;
     else scalars[k] = v;
   }
+
 
   return (
     <div className="space-y-6">
@@ -217,7 +219,7 @@ function SkillSuggestionCard({ item }: { item: any }) {
 }
 
 function GenericObjectCard({ item, index }: { item: any; index: number }) {
-  const entries = Object.entries(item);
+  const entries = Object.entries(item).filter(([k]) => !isHiddenIdField(k));
   return (
     <div className="rounded-xl border border-border/60 bg-card p-4 shadow-soft">
       <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -265,4 +267,10 @@ function humanize(key: string) {
     .replace(/\s+/g, " ")
     .trim()
     .replace(/^\w/, (c) => c.toUpperCase());
+}
+
+/** Internal DB identifiers we never surface in the UI. */
+function isHiddenIdField(key: string) {
+  const lower = key.toLowerCase();
+  return lower === "id" || lower === "resumeid" || lower === "resume_id";
 }

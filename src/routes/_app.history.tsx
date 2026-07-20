@@ -60,23 +60,29 @@ function HistoryPage() {
                   )}
                   <div className="grid gap-3 md:grid-cols-2">
                     {items.map((it: any, idx: number) => (
-                      <motion.div key={it.id ?? idx} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.03 }}>
+                      <motion.div key={idx} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.03 }}>
                         <div className="rounded-lg border border-border/60 bg-background p-4">
                           <div className="flex items-center justify-between">
-                            <div className="font-medium">#{it.id ?? idx + 1}</div>
+                            <div className="font-medium">#{idx + 1}</div>
                             <div className="text-xs text-muted-foreground">
                               {it.createdAt ? new Date(it.createdAt).toLocaleString() : ""}
                             </div>
                           </div>
                           <div className="mt-2 space-y-1 text-sm">
-                            {Object.entries(it).slice(0, 6).map(([k, v]) => (
-                              typeof v !== "object" && v !== null ? (
-                                <div key={k} className="flex gap-2">
-                                  <span className="text-muted-foreground">{k}:</span>
-                                  <span className="truncate">{String(v)}</span>
-                                </div>
-                              ) : null
-                            ))}
+                            {Object.entries(it)
+                              .filter(([k]) => {
+                                const lower = k.toLowerCase();
+                                return lower !== "id" && lower !== "resumeid" && lower !== "resume_id";
+                              })
+                              .slice(0, 6)
+                              .map(([k, v]) => (
+                                typeof v !== "object" && v !== null ? (
+                                  <div key={k} className="flex gap-2">
+                                    <span className="text-muted-foreground">{k}:</span>
+                                    <span className="truncate">{String(v)}</span>
+                                  </div>
+                                ) : null
+                              ))}
                           </div>
                         </div>
                       </motion.div>
