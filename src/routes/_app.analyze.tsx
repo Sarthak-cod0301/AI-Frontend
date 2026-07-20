@@ -16,6 +16,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { ResultDetail } from "@/components/result-detail";
 
 export const Route = createFileRoute("/_app/analyze")({
   component: AnalyzePage,
@@ -286,38 +287,3 @@ function ScoreRing({ value }: { value: number }) {
   );
 }
 
-function ResultDetail({ data }: { data: any }) {
-  if (!data) return null;
-  const arrays: Record<string, any[]> = {};
-  const scalars: Record<string, any> = {};
-  for (const [k, v] of Object.entries(data)) {
-    if (Array.isArray(v)) arrays[k] = v;
-    else if (typeof v !== "object" || v === null) scalars[k] = v;
-  }
-  return (
-    <div className="space-y-4">
-      {Object.keys(scalars).length > 0 && (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {Object.entries(scalars).map(([k, v]) => (
-            <div key={k} className="rounded-lg border border-border/60 bg-background p-3">
-              <div className="text-xs font-medium uppercase text-muted-foreground">{k}</div>
-              <div className="mt-1 break-words text-sm">{String(v)}</div>
-            </div>
-          ))}
-        </div>
-      )}
-      {Object.entries(arrays).map(([k, arr]) => (
-        <div key={k}>
-          <div className="mb-2 text-sm font-semibold">{k}</div>
-          <ul className="space-y-2">
-            {arr.map((item, i) => (
-              <li key={i} className="rounded-lg border border-border/60 bg-background p-3 text-sm">
-                {typeof item === "string" ? item : <pre className="whitespace-pre-wrap text-xs">{JSON.stringify(item, null, 2)}</pre>}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </div>
-  );
-}
