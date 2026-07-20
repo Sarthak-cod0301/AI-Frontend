@@ -219,7 +219,7 @@ function SkillSuggestionCard({ item }: { item: any }) {
 }
 
 function GenericObjectCard({ item, index }: { item: any; index: number }) {
-  const entries = Object.entries(item);
+  const entries = Object.entries(item).filter(([k]) => !isHiddenIdField(k));
   return (
     <div className="rounded-xl border border-border/60 bg-card p-4 shadow-soft">
       <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
