@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/lib/auth";
+import { AuthAPI } from "@/lib/api";
 
 const searchSchema = z.object({
   mode: z.enum(["login", "register"]).optional(),
@@ -97,7 +99,10 @@ function AuthPage() {
                     onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="li-password">Password</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="li-password">Password</Label>
+                    <ForgotPasswordDialog />
+                  </div>
                   <Input id="li-password" type="password" required value={loginForm.password}
                     onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })} />
                 </div>
@@ -142,5 +147,73 @@ function AuthPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+function ForgotPasswordDialog() {
+  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState<"request" | "reset">("request");
+  const [email, setEmail] = useState("");
+  const [resetToken, setResetToken] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const request = async () => {
+    setBusy(true);
+    try {
+      const res = await AuthAPI.forgotPassword(email);
+      if (res?.resetToken) setResetToken(res.resetToken);
+      toast.success("Reset token generated");
+      setStep("reset");
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Could not request reset");
+    } finally { setBusy(false); }
+  };
+
+  const reset = async () => {
+    setBusy(true);
+    try {
+      await AuthAPI.resetPassword({ resetToken, newPassword });
+      toast.success("Password reset. Please sign in.");
+      setOpen(false); setStep("request"); setEmail(""); setResetToken(""); setNewPassword("");
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Reset failed");
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button type="button" className="text-xs text-primary hover:underline">Forgot?</button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Reset password</DialogTitle></DialogHeader>
+        {step === "request" ? (
+          <div className="space-y-3">
+            <Label>Email</Label>
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button onClick={request} disabled={busy || !email} className="bg-gradient-primary text-white">
+                {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Get reset token
+              </Button>
+            </DialogFooter>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <Label>Reset token</Label>
+            <Input value={resetToken} onChange={(e) => setResetToken(e.target.value)} />
+            <Label>New password</Label>
+            <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setStep("request")}>Back</Button>
+              <Button onClick={reset} disabled={busy || !resetToken || !newPassword} className="bg-gradient-primary text-white">
+                {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Reset password
+              </Button>
+            </DialogFooter>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
