@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_app/job-descriptions")({
   component: JobDescriptionsPage,
 });
 
-type JD = { id?: number; title: string; company?: string; description: string };
+type JD = { id?: string; title: string; company?: string; description: string };
 
 function JobDescriptionsPage() {
   const qc = useQueryClient();
@@ -36,7 +36,7 @@ function JobDescriptionsPage() {
     onError: (e: any) => toast.error(e?.response?.data?.message ?? "Failed to save"),
   });
   const removeMut = useMutation({
-    mutationFn: (id: number) => JobDescAPI.remove(id),
+    mutationFn: (id: string) => JobDescAPI.remove(id),
     onSuccess: () => { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["jds"] }); },
   });
 

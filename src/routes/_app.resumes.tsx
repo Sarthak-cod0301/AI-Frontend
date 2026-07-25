@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_app/resumes")({
 function ResumesPage() {
   const qc = useQueryClient();
   const fileInput = useRef<HTMLInputElement>(null);
-  const [renaming, setRenaming] = useState<{ id: number; name: string } | null>(null);
+  const [renaming, setRenaming] = useState<{ id: string; name: string } | null>(null);
 
   const { data, isLoading } = useQuery({ queryKey: ["resumes"], queryFn: ResumeAPI.list, retry: false });
 
@@ -29,15 +29,15 @@ function ResumesPage() {
     onError: (e: any) => toast.error(e?.response?.data?.message ?? "Upload failed"),
   });
   const removeMut = useMutation({
-    mutationFn: (id: number) => ResumeAPI.remove(id),
+    mutationFn: (id: string) => ResumeAPI.remove(id),
     onSuccess: () => { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["resumes"] }); },
   });
   const renameMut = useMutation({
-    mutationFn: ({ id, name }: { id: number; name: string }) => ResumeAPI.rename(id, name),
+    mutationFn: ({ id, name }: { id: string; name: string }) => ResumeAPI.rename(id, name),
     onSuccess: () => { toast.success("Renamed"); setRenaming(null); qc.invalidateQueries({ queryKey: ["resumes"] }); },
   });
 
-  const handleDownload = async (id: number, name: string) => {
+  const handleDownload = async (id: string, name: string) => {
     try {
       const blob = await ResumeAPI.download(id);
       const url = URL.createObjectURL(blob);

@@ -33,8 +33,10 @@ api.interceptors.response.use(
   },
 );
 
+export type ID = string;
+
 export type StoredUser = {
-  id?: number;
+  id?: string;
   name?: string;
   email?: string;
 };
@@ -62,6 +64,18 @@ export const AuthAPI = {
     api.post("/api/auth/register", data).then((r) => r.data),
   login: (data: { email: string; password: string }) =>
     api.post("/api/auth/login", data).then((r) => r.data),
+  forgotPassword: (email: string) =>
+    api.post("/api/auth/forgot-password", { email }).then((r) => r.data),
+  resetPassword: (data: { resetToken: string; newPassword: string }) =>
+    api.post("/api/auth/reset-password", data).then((r) => r.data),
+};
+
+export const UserAPI = {
+  me: () => api.get("/api/users/me").then((r) => r.data),
+  update: (data: { name?: string; email?: string }) =>
+    api.put("/api/users/me", data).then((r) => r.data),
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    api.put("/api/users/me/change-password", data).then((r) => r.data),
 };
 
 export const ResumeAPI = {
@@ -75,7 +89,7 @@ export const ResumeAPI = {
       })
       .then((r) => r.data);
   },
-  replace: (id: number, file: File) => {
+  replace: (id: ID, file: File) => {
     const fd = new FormData();
     fd.append("file", file);
     return api
@@ -84,30 +98,32 @@ export const ResumeAPI = {
       })
       .then((r) => r.data);
   },
-  rename: (id: number, fileName: string) =>
-    api.put(`/api/resumes/${id}/rename`, { fileName }).then((r) => r.data),
-  remove: (id: number) => api.delete(`/api/resumes/${id}`).then((r) => r.data),
-  download: (id: number) =>
+  rename: (id: ID, resumeName: string) =>
+    api.put(`/api/resumes/${id}/rename`, { resumeName }).then((r) => r.data),
+  remove: (id: ID) => api.delete(`/api/resumes/${id}`).then((r) => r.data),
+  download: (id: ID) =>
     api
       .get(`/api/resumes/${id}/download`, { responseType: "blob" })
       .then((r) => r.data as Blob),
+  versions: (id: ID) =>
+    api.get(`/api/resumes/${id}/versions`).then((r) => r.data),
 };
 
 export const JobDescAPI = {
   list: () => api.get("/api/job-descriptions").then((r) => r.data),
   create: (data: { title: string; company?: string; description: string }) =>
     api.post("/api/job-descriptions", data).then((r) => r.data),
-  update: (id: number, data: { title: string; company?: string; description: string }) =>
+  update: (id: ID, data: { title: string; company?: string; description: string }) =>
     api.put(`/api/job-descriptions/${id}`, data).then((r) => r.data),
-  remove: (id: number) => api.delete(`/api/job-descriptions/${id}`).then((r) => r.data),
-  get: (id: number) => api.get(`/api/job-descriptions/${id}`).then((r) => r.data),
+  remove: (id: ID) => api.delete(`/api/job-descriptions/${id}`).then((r) => r.data),
+  get: (id: ID) => api.get(`/api/job-descriptions/${id}`).then((r) => r.data),
 };
 
 export const DashboardAPI = {
   get: () => api.get("/api/dashboard").then((r) => r.data),
 };
 
-const runWithResume = (path: string) => (resumeId: number) =>
+const runWithResume = (path: string) => (resumeId: ID) =>
   api.post(`${path}/run`, null, { params: { resumeId } }).then((r) => r.data);
 
 export const AtsAPI = {
@@ -123,30 +139,46 @@ export const FormattingAPI = {
   history: () => api.get("/api/formatting-check/history").then((r) => r.data),
 };
 export const ProjectAPI = {
-  run: (resumeId: number) =>
+  run: (resumeId: ID) =>
     api
       .post("/api/project-analysis/run", null, { params: { resumeId } })
       .then((r) => r.data),
   history: () => api.get("/api/project-analysis/history").then((r) => r.data),
 };
 export const ImprovementAPI = {
-  run: (resumeId: number) =>
+  run: (resumeId: ID) =>
     api
       .post("/api/improvement/improve", null, { params: { resumeId } })
       .then((r) => r.data),
   history: () => api.get("/api/improvement/history").then((r) => r.data),
 };
 export const AnalysisAPI = {
-  run: (resumeId: number, jobDescriptionId: number) =>
+  run: (resumeId: ID, jobDescriptionId: ID) =>
     api
       .post("/api/analysis/run", null, { params: { resumeId, jobDescriptionId } })
       .then((r) => r.data),
   history: () => api.get("/api/analysis/history").then((r) => r.data),
 };
 export const SuggestionAPI = {
-  run: (resumeId: number, jobDescriptionId: number) =>
+  run: (resumeId: ID, jobDescriptionId: ID) =>
     api
       .post("/api/suggestions/generate", null, { params: { resumeId, jobDescriptionId } })
       .then((r) => r.data),
   history: () => api.get("/api/suggestions/history").then((r) => r.data),
+};
+
+export const InterviewAPI = {
+  start: (data: { resumeId?: ID; jobDescriptionId?: ID; role?: string; difficulty?: string; numQuestions?: number }) =>
+    api.post("/api/interview/start", data).then((r) => r.data),
+  next: (sessionId: ID) =>
+    api.get(`/api/interview/${sessionId}/next-question`).then((r) => r.data),
+  answer: (sessionId: ID, questionId: ID, data: { answer: string }) =>
+    api
+      .post(`/api/interview/${sessionId}/questions/${questionId}/answer`, data)
+      .then((r) => r.data),
+  complete: (sessionId: ID) =>
+    api.post(`/api/interview/${sessionId}/complete`, null).then((r) => r.data),
+  session: (sessionId: ID) =>
+    api.get(`/api/interview/${sessionId}`).then((r) => r.data),
+  history: () => api.get("/api/interview/history").then((r) => r.data),
 };

@@ -13,7 +13,9 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppResumesRouteImport } from './routes/_app.resumes'
+import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppJobDescriptionsRouteImport } from './routes/_app.job-descriptions'
+import { Route as AppInterviewRouteImport } from './routes/_app.interview'
 import { Route as AppHistoryRouteImport } from './routes/_app.history'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppAnalyzeRouteImport } from './routes/_app.analyze'
@@ -37,9 +39,19 @@ const AppResumesRoute = AppResumesRouteImport.update({
   path: '/resumes',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppJobDescriptionsRoute = AppJobDescriptionsRouteImport.update({
   id: '/job-descriptions',
   path: '/job-descriptions',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInterviewRoute = AppInterviewRouteImport.update({
+  id: '/interview',
+  path: '/interview',
   getParentRoute: () => AppRoute,
 } as any)
 const AppHistoryRoute = AppHistoryRouteImport.update({
@@ -64,7 +76,9 @@ export interface FileRoutesByFullPath {
   '/analyze': typeof AppAnalyzeRoute
   '/dashboard': typeof AppDashboardRoute
   '/history': typeof AppHistoryRoute
+  '/interview': typeof AppInterviewRoute
   '/job-descriptions': typeof AppJobDescriptionsRoute
+  '/profile': typeof AppProfileRoute
   '/resumes': typeof AppResumesRoute
 }
 export interface FileRoutesByTo {
@@ -73,7 +87,9 @@ export interface FileRoutesByTo {
   '/analyze': typeof AppAnalyzeRoute
   '/dashboard': typeof AppDashboardRoute
   '/history': typeof AppHistoryRoute
+  '/interview': typeof AppInterviewRoute
   '/job-descriptions': typeof AppJobDescriptionsRoute
+  '/profile': typeof AppProfileRoute
   '/resumes': typeof AppResumesRoute
 }
 export interface FileRoutesById {
@@ -84,7 +100,9 @@ export interface FileRoutesById {
   '/_app/analyze': typeof AppAnalyzeRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/history': typeof AppHistoryRoute
+  '/_app/interview': typeof AppInterviewRoute
   '/_app/job-descriptions': typeof AppJobDescriptionsRoute
+  '/_app/profile': typeof AppProfileRoute
   '/_app/resumes': typeof AppResumesRoute
 }
 export interface FileRouteTypes {
@@ -95,7 +113,9 @@ export interface FileRouteTypes {
     | '/analyze'
     | '/dashboard'
     | '/history'
+    | '/interview'
     | '/job-descriptions'
+    | '/profile'
     | '/resumes'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -104,7 +124,9 @@ export interface FileRouteTypes {
     | '/analyze'
     | '/dashboard'
     | '/history'
+    | '/interview'
     | '/job-descriptions'
+    | '/profile'
     | '/resumes'
   id:
     | '__root__'
@@ -114,7 +136,9 @@ export interface FileRouteTypes {
     | '/_app/analyze'
     | '/_app/dashboard'
     | '/_app/history'
+    | '/_app/interview'
     | '/_app/job-descriptions'
+    | '/_app/profile'
     | '/_app/resumes'
   fileRoutesById: FileRoutesById
 }
@@ -154,11 +178,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppResumesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/profile': {
+      id: '/_app/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/job-descriptions': {
       id: '/_app/job-descriptions'
       path: '/job-descriptions'
       fullPath: '/job-descriptions'
       preLoaderRoute: typeof AppJobDescriptionsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/interview': {
+      id: '/_app/interview'
+      path: '/interview'
+      fullPath: '/interview'
+      preLoaderRoute: typeof AppInterviewRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/history': {
@@ -189,7 +227,9 @@ interface AppRouteChildren {
   AppAnalyzeRoute: typeof AppAnalyzeRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppHistoryRoute: typeof AppHistoryRoute
+  AppInterviewRoute: typeof AppInterviewRoute
   AppJobDescriptionsRoute: typeof AppJobDescriptionsRoute
+  AppProfileRoute: typeof AppProfileRoute
   AppResumesRoute: typeof AppResumesRoute
 }
 
@@ -197,7 +237,9 @@ const AppRouteChildren: AppRouteChildren = {
   AppAnalyzeRoute: AppAnalyzeRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppHistoryRoute: AppHistoryRoute,
+  AppInterviewRoute: AppInterviewRoute,
   AppJobDescriptionsRoute: AppJobDescriptionsRoute,
+  AppProfileRoute: AppProfileRoute,
   AppResumesRoute: AppResumesRoute,
 }
 
