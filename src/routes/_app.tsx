@@ -8,6 +8,8 @@ import {
   History,
   LogOut,
   Zap,
+  Mic,
+  UserRound,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import {
@@ -36,7 +38,9 @@ const nav = [
   { to: "/resumes", label: "Resumes", icon: FileText },
   { to: "/job-descriptions", label: "Job Descriptions", icon: Briefcase },
   { to: "/analyze", label: "Run All Checks", icon: Zap },
+  { to: "/interview", label: "Mock Interview", icon: Mic },
   { to: "/history", label: "History", icon: History },
+  { to: "/profile", label: "Profile", icon: UserRound },
 ] as const;
 
 function AppLayout() {
