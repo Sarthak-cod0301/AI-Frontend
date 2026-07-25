@@ -56,13 +56,13 @@ function AnalyzePage() {
   const [running, setRunning] = useState(false);
 
   const runners: Record<CheckKey, () => Promise<any>> = useMemo(() => ({
-    ats:         () => AtsAPI.run(Number(resumeId)),
-    grammar:     () => GrammarAPI.run(Number(resumeId)),
-    formatting:  () => FormattingAPI.run(Number(resumeId)),
-    project:     () => ProjectAPI.run(Number(resumeId)),
-    improvement: () => ImprovementAPI.run(Number(resumeId)),
-    analysis:    () => AnalysisAPI.run(Number(resumeId), Number(jdId)),
-    suggestions: () => SuggestionAPI.run(Number(resumeId), Number(jdId)),
+    ats:         () => AtsAPI.run(resumeId),
+    grammar:     () => GrammarAPI.run(resumeId),
+    formatting:  () => FormattingAPI.run(resumeId),
+    project:     () => ProjectAPI.run(resumeId),
+    improvement: () => ImprovementAPI.run(resumeId),
+    analysis:    () => AnalysisAPI.run(resumeId, jdId),
+    suggestions: () => SuggestionAPI.run(resumeId, jdId),
   }), [resumeId, jdId]);
 
   const runAll = async () => {
