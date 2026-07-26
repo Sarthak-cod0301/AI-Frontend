@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Target, FileText, Layers, BarChart3, Wand2, Sparkles, Mic, ChevronDown } from "lucide-react";
-import { AtsAPI, GrammarAPI, FormattingAPI, ProjectAPI, ImprovementAPI, AnalysisAPI, SuggestionAPI, InterviewAPI } from "@/lib/api";
+import { AtsAPI, GrammarAPI, FormattingAPI, ProjectAPI, ImprovementAPI, AnalysisAPI, SuggestionAPI, InterviewAPI, ResumeAPI } from "@/lib/api";
+import { formatDateTime, resumeDisplayName } from "@/lib/format";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -36,6 +38,11 @@ function HistoryPage() {
   const queries = useQueries({
     queries: sources.map((s) => ({ queryKey: ["history", s.key], queryFn: s.fn, retry: false })),
   });
+  const resumes = useQuery({ queryKey: ["resumes"], queryFn: ResumeAPI.list, retry: false });
+  const resumeNames = new Map<string, string>(
+    (Array.isArray(resumes.data) ? resumes.data : []).map((r: any) => [String(r.id), resumeDisplayName(r)]),
+  );
+
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -78,7 +85,7 @@ function HistoryPage() {
                   )}
 
                   {items.map((it, idx) => (
-                    <HistoryEntry key={it?.id ?? idx} item={it} index={idx} />
+                    <HistoryEntry key={it?.id ?? idx} item={it} index={idx} resumeNames={resumeNames} />
                   ))}
                 </CardContent>
               </Card>
@@ -90,11 +97,14 @@ function HistoryPage() {
   );
 }
 
-function HistoryEntry({ item, index }: { item: any; index: number }) {
+function HistoryEntry({ item, index, resumeNames }: { item: any; index: number; resumeNames: Map<string, string> }) {
   const [open, setOpen] = useState(false);
   const score = extractScore(item);
-  const created = item?.createdAt ?? item?.updatedAt ?? item?.timestamp;
-  const resumeName = item?.resumeName ?? item?.resumeFileName ?? item?.fileName;
+  const created = formatDateTime(item?.createdAt ?? item?.updatedAt ?? item?.timestamp ?? item?.analyzedAt);
+  const resumeName =
+    resumeNames.get(String(item?.resumeId ?? "")) ??
+    resumeDisplayName(item, "") ??
+    "";
 
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.02 }}>
@@ -110,10 +120,10 @@ function HistoryEntry({ item, index }: { item: any; index: number }) {
             </div>
             <div className="min-w-0">
               <div className="truncate text-sm font-medium">
-                {resumeName ?? "Resume analysis"}
+                {resumeName || "Resume analysis"}
               </div>
               <div className="text-xs text-muted-foreground">
-                {created ? new Date(created).toLocaleString() : "—"}
+                {created ?? "—"}
               </div>
             </div>
           </div>

@@ -15,6 +15,8 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ResultDetail } from "@/components/result-detail";
+import { formatDateTime, resumeDisplayName } from "@/lib/format";
+
 
 export const Route = createFileRoute("/_app/interview")({
   component: InterviewPage,
@@ -242,7 +244,7 @@ function SessionPanel() {
             <SelectTrigger><SelectValue placeholder="Pick a resume" /></SelectTrigger>
             <SelectContent>
               {resumes.data?.map((r: any) => (
-                <SelectItem key={r.id} value={String(r.id)}>{r.fileName ?? r.name ?? `Resume ${r.id}`}</SelectItem>
+                <SelectItem key={r.id} value={String(r.id)}>{resumeDisplayName(r)}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -297,7 +299,12 @@ function SessionPanel() {
 
 function HistoryPanel() {
   const q = useQuery({ queryKey: ["interview-history"], queryFn: InterviewAPI.history, retry: false });
+  const resumes = useQuery({ queryKey: ["resumes"], queryFn: ResumeAPI.list, retry: false });
   const items: any[] = Array.isArray(q.data) ? q.data : [];
+
+  const nameById = new Map<string, string>(
+    (Array.isArray(resumes.data) ? resumes.data : []).map((r: any) => [String(r.id), resumeDisplayName(r)]),
+  );
 
   if (q.isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>;
   if (items.length === 0) {
@@ -308,22 +315,32 @@ function HistoryPanel() {
     );
   }
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      {items.map((s, i) => (
-        <motion.div key={s.id ?? s.sessionId ?? i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-          <Card className="border-border/60 shadow-soft">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between text-base">
-                <span>Session #{i + 1}</span>
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResultDetail data={s} />
-            </CardContent>
-          </Card>
-        </motion.div>
-      ))}
+    <div className="grid gap-4">
+      {items.map((s, i) => {
+        const when = formatDateTime(s?.createdAt ?? s?.startedAt ?? s?.completedAt ?? s?.updatedAt);
+        const resumeName = nameById.get(String(s?.resumeId ?? "")) ?? s?.resumeName ?? null;
+        return (
+          <motion.div key={s.id ?? s.sessionId ?? i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
+            <Card className="border-border/60 shadow-soft">
+              <CardHeader>
+                <CardTitle className="flex flex-wrap items-center justify-between gap-2 text-base">
+                  <span className="flex flex-col">
+                    <span>{s?.role ? `${s.role} interview` : `Session #${i + 1}`}</span>
+                    <span className="text-xs font-normal text-muted-foreground">
+                      {[when ?? null, resumeName].filter(Boolean).join(" · ") || "—"}
+                    </span>
+                  </span>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResultDetail data={s} />
+              </CardContent>
+            </Card>
+          </motion.div>
+        );
+      })}
     </div>
   );
 }
+

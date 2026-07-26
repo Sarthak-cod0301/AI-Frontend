@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { FileText, Briefcase, Sparkles, Zap, ArrowRight, TrendingUp } from "lucide-react";
 import { DashboardAPI, ResumeAPI, JobDescAPI } from "@/lib/api";
+import { resumeDisplayName } from "@/lib/format";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -89,7 +91,7 @@ function Dashboard() {
             {resumes.data?.slice(0, 4).map((r: any) => (
               <div key={r.id} className="flex items-center justify-between rounded-lg border border-border/60 p-3">
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-medium">{r.fileName ?? r.name}</div>
+                  <div className="truncate text-sm font-medium">{resumeDisplayName(r)}</div>
                   <div className="text-xs text-muted-foreground">#{r.id}</div>
                 </div>
                 <Link to="/analyze"><Button size="sm" variant="ghost"><ArrowRight className="h-4 w-4" /></Button></Link>
