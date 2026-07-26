@@ -140,9 +140,66 @@ function ItemCard({ item, index }: { item: any; index: number }) {
   if ("missingSkill" in item || "suggestedBullet" in item) {
     return <SkillSuggestionCard item={item} />;
   }
+  if (isInterviewQuestion(item)) {
+    return <InterviewQuestionCard item={item} index={index} />;
+  }
 
   return <GenericObjectCard item={item} index={index} />;
 }
+
+function isInterviewQuestion(item: any) {
+  return (
+    ("question" in item || "questionText" in item) &&
+    ("answer" in item || "userAnswer" in item || "correct" in item || "isCorrect" in item)
+  );
+}
+
+/** Interview Q&A card — unanswered questions are shown as skipped, not wrong. */
+function InterviewQuestionCard({ item, index }: { item: any; index: number }) {
+  const question = item.question ?? item.questionText ?? item.text;
+  const answer: string = item.answer ?? item.userAnswer ?? "";
+  const answered = typeof answer === "string" && answer.trim().length > 0;
+  const correct = item.correct ?? item.isCorrect;
+  const feedback = item.feedback ?? item.evaluation ?? item.explanation;
+  const score = typeof item.score === "number" ? item.score : null;
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-soft">
+      <div className="flex items-start justify-between gap-3 border-b border-border/60 bg-muted/40 px-4 py-2.5">
+        <span className="text-sm font-semibold">Q{index + 1}. {question}</span>
+        {!answered ? (
+          <Badge variant="outline" className="flex-none gap-1">
+            <MinusCircle className="h-3 w-3" /> Not answered
+          </Badge>
+        ) : correct === true ? (
+          <Badge className="flex-none bg-success text-success-foreground gap-1">
+            <CheckCircle2 className="h-3 w-3" /> Correct
+          </Badge>
+        ) : correct === false ? (
+          <Badge variant="destructive" className="flex-none">Needs work</Badge>
+        ) : score != null ? (
+          <Badge variant="secondary" className="flex-none">Score {score}</Badge>
+        ) : null}
+      </div>
+      <div className="space-y-3 p-4 text-sm">
+        <div>
+          <Label icon={<FileText className="h-3.5 w-3.5" />} text="Your answer" tone="muted" />
+          <p className="mt-1 whitespace-pre-wrap leading-relaxed">
+            {answered ? answer : <span className="text-muted-foreground">Skipped — no answer submitted.</span>}
+          </p>
+        </div>
+        {typeof feedback === "string" && feedback.trim() && (
+          <div className="rounded-lg border-l-2 border-primary bg-muted/40 p-3">
+            <Label icon={<Sparkles className="h-3.5 w-3.5" />} text="Feedback" tone="primary" />
+            <p className="mt-1 whitespace-pre-wrap leading-relaxed">{feedback}</p>
+          </div>
+        )}
+        {feedback && typeof feedback === "object" && <ResultDetail data={feedback} />}
+      </div>
+    </div>
+  );
+}
+
 
 /* --------------------------- Specialised cards --------------------------- */
 
@@ -251,9 +308,10 @@ function GenericObjectCard({ item, index }: { item: any; index: number }) {
               ) : typeof v === "object" ? (
                 <ResultDetail data={v} />
               ) : (
-                String(v)
+                formatValue(k, v)
               )}
             </dd>
+
           </div>
         ))}
       </dl>
@@ -283,8 +341,3 @@ function humanize(key: string) {
     .replace(/^\w/, (c) => c.toUpperCase());
 }
 
-/** Internal DB identifiers we never surface in the UI. */
-function isHiddenIdField(key: string) {
-  const lower = key.toLowerCase();
-  return lower === "id" || lower === "resumeid" || lower === "resume_id";
-}
