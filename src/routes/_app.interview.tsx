@@ -15,6 +15,8 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ResultDetail } from "@/components/result-detail";
+import { formatDateTime, resumeDisplayName } from "@/lib/format";
+
 
 export const Route = createFileRoute("/_app/interview")({
   component: InterviewPage,
