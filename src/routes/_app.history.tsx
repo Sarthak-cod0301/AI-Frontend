@@ -3,7 +3,9 @@ import { useQueries } from "@tanstack/react-query";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Target, FileText, Layers, BarChart3, Wand2, Sparkles, Mic, ChevronDown } from "lucide-react";
-import { AtsAPI, GrammarAPI, FormattingAPI, ProjectAPI, ImprovementAPI, AnalysisAPI, SuggestionAPI, InterviewAPI } from "@/lib/api";
+import { AtsAPI, GrammarAPI, FormattingAPI, ProjectAPI, ImprovementAPI, AnalysisAPI, SuggestionAPI, InterviewAPI, ResumeAPI } from "@/lib/api";
+import { formatDateTime, resumeDisplayName } from "@/lib/format";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
