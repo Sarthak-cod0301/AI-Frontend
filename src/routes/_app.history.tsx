@@ -120,8 +120,6 @@ function HistoryEntry({ item, index, resumeNames }: { item: any; index: number; 
               </div>
             </div>
           </div>
-
-          </div>
           <div className="flex items-center gap-3">
             {score != null && (
               <Badge className="bg-primary/10 text-primary hover:bg-primary/15">Score {score}</Badge>
