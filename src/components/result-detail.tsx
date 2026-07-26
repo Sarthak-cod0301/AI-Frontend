@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, Lightbulb, AlertCircle, FileText, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, Lightbulb, AlertCircle, FileText, Sparkles, MinusCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { isHiddenIdField, isDateLikeKey, formatDateTime } from "@/lib/format";
+
 
 /**
  * Smart renderer for the varied AI result shapes returned by the backend.
@@ -71,12 +73,24 @@ function ScalarGrid({ data }: { data: Record<string, any> }) {
           <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
             {humanize(k)}
           </div>
-          <div className="mt-1 break-words text-sm font-medium">{String(v)}</div>
+          <div className="mt-1 break-words text-sm font-medium">{formatValue(k, v)}</div>
         </div>
       ))}
     </div>
   );
 }
+
+/** Presentational value formatting: pretty dates, readable booleans. */
+function formatValue(key: string, v: any): string {
+  if (v === null || v === undefined || v === "") return "—";
+  if (typeof v === "boolean") return v ? "Yes" : "No";
+  if (isDateLikeKey(key)) {
+    const pretty = formatDateTime(v);
+    if (pretty) return pretty;
+  }
+  return String(v);
+}
+
 
 function ItemList({ items }: { items: any[] }) {
   if (items.length === 0) {
