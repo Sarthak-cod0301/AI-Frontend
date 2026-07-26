@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Upload, FileText, Trash2, Pencil, Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ResumeAPI } from "@/lib/api";
+import { formatDateTime, resumeDisplayName } from "@/lib/format";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -105,19 +107,20 @@ function ResumesPage() {
                       <FileText className="h-5 w-5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate font-medium">{r.fileName ?? r.name ?? `Resume #${r.id}`}</div>
+                      <div className="truncate font-medium" title={resumeDisplayName(r)}>{resumeDisplayName(r)}</div>
                       <div className="text-xs text-muted-foreground">
-                        ID {r.id}{r.uploadedAt ? ` · ${new Date(r.uploadedAt).toLocaleDateString()}` : ""}
+                        {formatDateTime(r.uploadedAt ?? r.createdAt ?? r.updatedAt) ?? "—"}
                       </div>
                     </div>
                   </div>
                   <div className="mt-4 flex items-center gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => handleDownload(r.id, r.fileName)}>
+                    <Button size="sm" variant="ghost" onClick={() => handleDownload(r.id, resumeDisplayName(r, ""))}>
                       <Download className="h-4 w-4" />
                     </Button>
-                    <Button size="sm" variant="ghost" onClick={() => setRenaming({ id: r.id, name: r.fileName ?? "" })}>
+                    <Button size="sm" variant="ghost" onClick={() => setRenaming({ id: r.id, name: resumeDisplayName(r, "") })}>
                       <Pencil className="h-4 w-4" />
                     </Button>
+
                     <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive"
                       onClick={() => { if (confirm("Delete this resume?")) removeMut.mutate(r.id); }}>
                       <Trash2 className="h-4 w-4" />

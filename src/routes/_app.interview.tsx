@@ -242,7 +242,7 @@ function SessionPanel() {
             <SelectTrigger><SelectValue placeholder="Pick a resume" /></SelectTrigger>
             <SelectContent>
               {resumes.data?.map((r: any) => (
-                <SelectItem key={r.id} value={String(r.id)}>{r.fileName ?? r.name ?? `Resume ${r.id}`}</SelectItem>
+                <SelectItem key={r.id} value={String(r.id)}>{resumeDisplayName(r)}</SelectItem>
               ))}
             </SelectContent>
           </Select>

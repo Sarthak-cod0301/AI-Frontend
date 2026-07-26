@@ -17,6 +17,8 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ResultDetail } from "@/components/result-detail";
+import { resumeDisplayName } from "@/lib/format";
+
 
 export const Route = createFileRoute("/_app/analyze")({
   component: AnalyzePage,
@@ -114,7 +116,7 @@ function AnalyzePage() {
               <SelectTrigger><SelectValue placeholder="Choose a resume" /></SelectTrigger>
               <SelectContent>
                 {resumes.data?.map((r: any) => (
-                  <SelectItem key={r.id} value={String(r.id)}>{r.fileName ?? `Resume #${r.id}`}</SelectItem>
+                  <SelectItem key={r.id} value={String(r.id)}>{resumeDisplayName(r)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
