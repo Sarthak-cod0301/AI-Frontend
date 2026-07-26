@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { FileText, Briefcase, Sparkles, Zap, ArrowRight, TrendingUp } from "lucide-react";
 import { DashboardAPI, ResumeAPI, JobDescAPI } from "@/lib/api";
+import { resumeDisplayName } from "@/lib/format";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";

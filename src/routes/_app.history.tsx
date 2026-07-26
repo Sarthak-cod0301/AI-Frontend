@@ -90,11 +90,14 @@ function HistoryPage() {
   );
 }
 
-function HistoryEntry({ item, index }: { item: any; index: number }) {
+function HistoryEntry({ item, index, resumeNames }: { item: any; index: number; resumeNames: Map<string, string> }) {
   const [open, setOpen] = useState(false);
   const score = extractScore(item);
-  const created = item?.createdAt ?? item?.updatedAt ?? item?.timestamp;
-  const resumeName = item?.resumeName ?? item?.resumeFileName ?? item?.fileName;
+  const created = formatDateTime(item?.createdAt ?? item?.updatedAt ?? item?.timestamp ?? item?.analyzedAt);
+  const resumeName =
+    resumeNames.get(String(item?.resumeId ?? "")) ??
+    resumeDisplayName(item, "") ??
+    "";
 
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.02 }}>
@@ -110,12 +113,14 @@ function HistoryEntry({ item, index }: { item: any; index: number }) {
             </div>
             <div className="min-w-0">
               <div className="truncate text-sm font-medium">
-                {resumeName ?? "Resume analysis"}
+                {resumeName || "Resume analysis"}
               </div>
               <div className="text-xs text-muted-foreground">
-                {created ? new Date(created).toLocaleString() : "—"}
+                {created ?? "—"}
               </div>
             </div>
+          </div>
+
           </div>
           <div className="flex items-center gap-3">
             {score != null && (
