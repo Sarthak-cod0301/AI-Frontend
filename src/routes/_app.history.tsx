@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Target, FileText, Layers, BarChart3, Wand2, Sparkles, Mic, ChevronDown } from "lucide-react";
@@ -38,6 +38,11 @@ function HistoryPage() {
   const queries = useQueries({
     queries: sources.map((s) => ({ queryKey: ["history", s.key], queryFn: s.fn, retry: false })),
   });
+  const resumes = useQuery({ queryKey: ["resumes"], queryFn: ResumeAPI.list, retry: false });
+  const resumeNames = new Map<string, string>(
+    (Array.isArray(resumes.data) ? resumes.data : []).map((r: any) => [String(r.id), resumeDisplayName(r)]),
+  );
+
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -80,7 +85,7 @@ function HistoryPage() {
                   )}
 
                   {items.map((it, idx) => (
-                    <HistoryEntry key={it?.id ?? idx} item={it} index={idx} />
+                    <HistoryEntry key={it?.id ?? idx} item={it} index={idx} resumeNames={resumeNames} />
                   ))}
                 </CardContent>
               </Card>
