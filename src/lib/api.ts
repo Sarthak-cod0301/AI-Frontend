@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const API_BASE =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
-  "http://localhost:9095";
+  "http://localhost:9095" ;
 
 export const TOKEN_KEY = "ara_token";
 export const USER_KEY = "ara_user";
@@ -76,6 +76,8 @@ export const UserAPI = {
     api.put("/api/users/me", data).then((r) => r.data),
   changePassword: (data: { currentPassword: string; newPassword: string }) =>
     api.put("/api/users/me/change-password", data).then((r) => r.data),
+  deleteAccount: (data: { password: string }) =>
+    api.delete("/api/users/me", { data }).then((r) => r.data),
 };
 
 export const ResumeAPI = {

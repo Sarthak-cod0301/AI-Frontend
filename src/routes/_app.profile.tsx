@@ -2,9 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Loader2, Save, KeyRound, UserRound } from "lucide-react";
+import { Loader2, Save, KeyRound, UserRound, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { UserAPI, USER_KEY } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/_app/profile")({
 
 function ProfilePage() {
   const qc = useQueryClient();
+  const { logout } = useAuth();
   const me = useQuery({ queryKey: ["me"], queryFn: UserAPI.me, retry: false });
 
   const [form, setForm] = useState({ name: "", email: "" });
@@ -43,6 +45,17 @@ function ProfilePage() {
       setPw({ currentPassword: "", newPassword: "", confirm: "" });
     },
     onError: (e: any) => toast.error(e?.response?.data?.message ?? "Change failed"),
+  });
+
+  const [deleteConfirm, setDeleteConfirm] = useState({ open: false, password: "" });
+  const deleteMut = useMutation({
+    mutationFn: () => UserAPI.deleteAccount({ password: deleteConfirm.password }),
+    onSuccess: () => {
+      toast.success("Account deleted");
+      logout();
+      window.location.href = "/auth";
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.message ?? "Delete failed"),
   });
 
   return (
@@ -105,6 +118,58 @@ function ProfilePage() {
             {pwMut.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Update password
           </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-destructive/20 shadow-soft">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-destructive">
+            <Trash2 className="h-5 w-5" /> Delete account
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Once deleted, your account and all associated data are permanently removed. This cannot be undone.
+          </p>
+
+          {!deleteConfirm.open ? (
+            <Button
+              variant="outline"
+              className="border-destructive/50 text-destructive hover:bg-destructive/10"
+              onClick={() => setDeleteConfirm({ open: true, password: "" })}
+            >
+              Delete account
+            </Button>
+          ) : (
+            <div className="space-y-3 rounded-lg border border-destructive/20 bg-destructive/5 p-4">
+              <div className="space-y-2">
+                <Label>Confirm your password</Label>
+                <Input
+                  type="password"
+                  placeholder="Enter current password"
+                  value={deleteConfirm.password}
+                  onChange={(e) => setDeleteConfirm({ ...deleteConfirm, password: e.target.value })}
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="destructive"
+                  disabled={deleteMut.isPending || !deleteConfirm.password}
+                  onClick={() => deleteMut.mutate()}
+                >
+                  {deleteMut.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Permanently delete
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => setDeleteConfirm({ open: false, password: "" })}
+                  disabled={deleteMut.isPending}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -101,7 +101,7 @@ function AuthPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="li-password">Password</Label>
-                    <ForgotPasswordDialog />
+                    
                   </div>
                   <Input id="li-password" type="password" required value={loginForm.password}
                     onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })} />
@@ -142,7 +142,6 @@ function AuthPage() {
           </Tabs>
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
-            API: <code className="rounded bg-muted px-1.5 py-0.5">http://localhost:9095</code>
           </p>
         </motion.div>
       </div>
