@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const API_BASE =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
-  "http://localhost:9095" ;
+  "https://ai-resume-analyzer-backend-h7hf.onrender.com" ;
 
 export const TOKEN_KEY = "ara_token";
 export const USER_KEY = "ara_user";
