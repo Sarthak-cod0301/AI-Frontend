@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, Loader2, Play, Send, CheckCircle2, Sparkles, History as HistoryIcon, ArrowRight, Trash2 } from "lucide-react";
+import { Mic, Loader2, Play, Send, CheckCircle2, Sparkles, History as HistoryIcon, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { InterviewAPI, ResumeAPI, JobDescAPI } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -298,32 +298,23 @@ function SessionPanel() {
 /* ------------------------------ History ------------------------------ */
 
 function HistoryPanel() {
+  const qc = useQueryClient();
   const q = useQuery({ queryKey: ["interview-history"], queryFn: InterviewAPI.history, retry: false });
   const resumes = useQuery({ queryKey: ["resumes"], queryFn: ResumeAPI.list, retry: false });
   const items: any[] = Array.isArray(q.data) ? q.data : [];
-  const qc = useQueryClient();
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  const deleteMut = useMutation({
-    mutationFn: (sessionId: string) => InterviewAPI.delete(sessionId),
-    onMutate: (sessionId: string) => setDeletingId(sessionId),
-    onSuccess: () => {
-      toast.success("Session deleted");
-      qc.invalidateQueries({ queryKey: ["interview-history"] });
-    },
-    onError: (e: any) => toast.error(e?.response?.data?.error ?? "Could not delete session"),
-    onSettled: () => setDeletingId(null),
-  });
-
-  const handleDelete = (sessionId: string) => {
-    if (!sessionId) return;
-    if (!window.confirm("Delete this interview session? This can't be undone.")) return;
-    deleteMut.mutate(sessionId);
-  };
 
   const nameById = new Map<string, string>(
     (Array.isArray(resumes.data) ? resumes.data : []).map((r: any) => [String(r.id), resumeDisplayName(r)]),
   );
+
+  const deleteMut = useMutation({
+    mutationFn: (sessionId: string) => InterviewAPI.delete(sessionId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["interview-history"] });
+      toast.success("Interview session deleted");
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.message ?? "Could not delete session"),
+  });
 
   if (q.isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>;
   if (items.length === 0) {
@@ -338,7 +329,7 @@ function HistoryPanel() {
       {items.map((s, i) => {
         const when = formatDateTime(s?.createdAt ?? s?.startedAt ?? s?.completedAt ?? s?.updatedAt);
         const resumeName = nameById.get(String(s?.resumeId ?? "")) ?? s?.resumeName ?? null;
-        const sid = s?.id ?? s?.sessionId ?? "";
+        const sid = String(s?.id ?? s?.sessionId ?? "");
         return (
           <motion.div key={sid || i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
             <Card className="border-border/60 shadow-soft">
@@ -350,21 +341,16 @@ function HistoryPanel() {
                       {[when ?? null, resumeName].filter(Boolean).join(" · ") || "—"}
                     </span>
                   </span>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-destructive"
-                      disabled={deleteMut.isPending && deletingId === sid}
-                      onClick={(e) => { e.stopPropagation(); handleDelete(sid); }}
-                      aria-label="Delete session"
-                    >
-                      {deleteMut.isPending && deletingId === sid
-                        ? <Loader2 className="h-4 w-4 animate-spin" />
-                        : <Trash2 className="h-4 w-4" />}
-                    </Button>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground hover:text-destructive"
+                    disabled={deleteMut.isPending}
+                    onClick={() => deleteMut.mutate(sid)}
+                    aria-label="Delete session"
+                  >
+                    {deleteMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                  </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -377,3 +363,4 @@ function HistoryPanel() {
     </div>
   );
 }
+
