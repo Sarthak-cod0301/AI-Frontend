@@ -105,7 +105,7 @@ function SessionPanel() {
   const answerMut = useMutation({
     mutationFn: () => {
       const qid = current?.id ?? current?.questionId ?? "";
-      return InterviewAPI.answer(sessionId, qid, { answer });
+      return InterviewAPI.answer(sessionId, qid, { answerText: answer });
     },
     onSuccess: async (evalResult) => {
       setEvaluations((e) => [...e, { question: current, evaluation: evalResult }]);
