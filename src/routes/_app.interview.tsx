@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, Loader2, Play, Send, CheckCircle2, Sparkles, History as HistoryIcon, Trash2 } from "lucide-react";
+import { Mic, Loader2, Play, Send, CheckCircle2, Sparkles, History as HistoryIcon, Trash2, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { InterviewAPI, ResumeAPI, JobDescAPI } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -302,6 +302,7 @@ function HistoryPanel() {
   const q = useQuery({ queryKey: ["interview-history"], queryFn: InterviewAPI.history, retry: false });
   const resumes = useQuery({ queryKey: ["resumes"], queryFn: ResumeAPI.list, retry: false });
   const items: any[] = Array.isArray(q.data) ? q.data : [];
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
   const nameById = new Map<string, string>(
     (Array.isArray(resumes.data) ? resumes.data : []).map((r: any) => [String(r.id), resumeDisplayName(r)]),
@@ -330,8 +331,10 @@ function HistoryPanel() {
         const when = formatDateTime(s?.createdAt ?? s?.startedAt ?? s?.completedAt ?? s?.updatedAt);
         const resumeName = nameById.get(String(s?.resumeId ?? "")) ?? s?.resumeName ?? null;
         const sid = String(s?.id ?? s?.sessionId ?? "");
+        const rowKey = sid || `session-${i}`;
+        const isOpen = !collapsed[rowKey];
         return (
-          <motion.div key={sid || i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
+          <motion.div key={rowKey} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
             <Card className="border-border/60 shadow-soft">
               <CardHeader>
                 <CardTitle className="flex flex-wrap items-center justify-between gap-2 text-base">
@@ -341,21 +344,33 @@ function HistoryPanel() {
                       {[when ?? null, resumeName].filter(Boolean).join(" · ") || "—"}
                     </span>
                   </span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-muted-foreground hover:text-destructive"
-                    disabled={deleteMut.isPending}
-                    onClick={() => deleteMut.mutate(sid)}
-                    aria-label="Delete session"
-                  >
-                    {deleteMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                  </Button>
+                  <span className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setCollapsed((prev) => ({ ...prev, [rowKey]: !prev[rowKey] }))}
+                      aria-label={isOpen ? "Collapse session details" : "Expand session details"}
+                    >
+                      <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-muted-foreground hover:text-destructive"
+                      disabled={deleteMut.isPending || !sid}
+                      onClick={() => deleteMut.mutate(sid)}
+                      aria-label="Delete session"
+                    >
+                      {deleteMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    </Button>
+                  </span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResultDetail data={s} />
-              </CardContent>
+              {isOpen && (
+                <CardContent>
+                  <ResultDetail data={s} />
+                </CardContent>
+              )}
             </Card>
           </motion.div>
         );
@@ -363,4 +378,3 @@ function HistoryPanel() {
     </div>
   );
 }
-
