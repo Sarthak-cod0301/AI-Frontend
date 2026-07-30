@@ -174,7 +174,7 @@ export const InterviewAPI = {
     api.post("/api/interview/start", data).then((r) => r.data),
   next: (sessionId: ID) =>
     api.get(`/api/interview/${sessionId}/next-question`).then((r) => r.data),
-  answer: (sessionId: ID, questionId: ID, data: { answer: string }) =>
+  answer: (sessionId: ID, questionId: ID, data: { answerText: string }) =>
     api
       .post(`/api/interview/${sessionId}/questions/${questionId}/answer`, data)
       .then((r) => r.data),
@@ -183,5 +183,6 @@ export const InterviewAPI = {
   session: (sessionId: ID) =>
     api.get(`/api/interview/${sessionId}`).then((r) => r.data),
   history: () => api.get("/api/interview/history").then((r) => r.data),
-  api.delete(`/api/interview/${sessionId}`).then((r) => r.data),
+  delete: (sessionId: ID) =>
+    api.delete(`/api/interview/${sessionId}`).then((r) => r.data),
 };
