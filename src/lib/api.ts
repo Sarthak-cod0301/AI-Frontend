@@ -183,4 +183,5 @@ export const InterviewAPI = {
   session: (sessionId: ID) =>
     api.get(`/api/interview/${sessionId}`).then((r) => r.data),
   history: () => api.get("/api/interview/history").then((r) => r.data),
+  api.delete(`/api/interview/${sessionId}`).then((r) => r.data),
 };
