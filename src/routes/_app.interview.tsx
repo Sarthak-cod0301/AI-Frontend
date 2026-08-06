@@ -17,6 +17,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ResultDetail } from "@/components/result-detail";
 import { formatDateTime, resumeDisplayName } from "@/lib/format";
 
+// Interview length is fixed and not user-configurable.
+const NUM_QUESTIONS = 10;
 
 export const Route = createFileRoute("/_app/interview")({
   component: InterviewPage,
@@ -60,7 +62,7 @@ function SessionPanel() {
   const [jdId, setJdId] = useState<string>("");
   const [role, setRole] = useState<string>("");
   const [difficulty, setDifficulty] = useState<string>("medium");
-  const [numQuestions, setNumQuestions] = useState<number>(5);
+  // numQuestions is fixed at NUM_QUESTIONS and is intentionally not user-editable.
 
   const [session, setSession] = useState<Session | null>(null);
   const [current, setCurrent] = useState<Question | null>(null);
@@ -78,7 +80,7 @@ function SessionPanel() {
         jobDescriptionId: jdId || undefined,
         role: role || undefined,
         difficulty,
-        numQuestions,
+        numQuestions: NUM_QUESTIONS,
       }),
     onSuccess: async (s: Session) => {
       setSession(s);
@@ -105,12 +107,12 @@ function SessionPanel() {
   const answerMut = useMutation({
     mutationFn: () => {
       const qid = current?.id ?? current?.questionId ?? "";
-      return InterviewAPI.answer(sessionId, qid, { answerText: answer });
+      return InterviewAPI.answer(sessionId, qid, { answer });
     },
     onSuccess: async (evalResult) => {
       setEvaluations((e) => [...e, { question: current, evaluation: evalResult }]);
       setAnswer("");
-      if (asked >= numQuestions) {
+      if (asked >= NUM_QUESTIONS) {
         finishMut.mutate();
       } else {
         try {
@@ -150,11 +152,11 @@ function SessionPanel() {
         <Card className="border-border/60 shadow-soft">
           <CardContent className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <Badge className="bg-primary/10 text-primary">Question {Math.min(asked, numQuestions)} / {numQuestions}</Badge>
+              <Badge className="bg-primary/10 text-primary">Question {Math.min(asked, NUM_QUESTIONS)} / {NUM_QUESTIONS}</Badge>
               {role && <span className="text-sm text-muted-foreground">Role: {role}</span>}
               <span className="text-xs text-muted-foreground uppercase">Difficulty: {difficulty}</span>
             </div>
-            <Progress value={(Math.min(asked, numQuestions) / numQuestions) * 100} className="w-40" />
+            <Progress value={(Math.min(asked, NUM_QUESTIONS) / NUM_QUESTIONS) * 100} className="w-40" />
           </CardContent>
         </Card>
 
@@ -275,12 +277,15 @@ function SessionPanel() {
             </SelectContent>
           </Select>
         </div>
-        <div className="space-y-2">
-          <Label>Number of questions</Label>
-          <Input type="number" min={1} max={20} value={numQuestions}
-            onChange={(e) => setNumQuestions(Math.max(1, Math.min(20, Number(e.target.value) || 5)))} />
+        {/* Number of questions is fixed at 10 and is not user-configurable. */}
+        <div className="space-y-2 md:col-span-2">
+          <Label className="text-muted-foreground">Questions</Label>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Badge variant="secondary">{NUM_QUESTIONS} questions</Badge>
+            <span>Every interview covers a fixed set of {NUM_QUESTIONS} questions.</span>
+          </div>
         </div>
-        <div className="flex items-end">
+        <div className="flex items-end md:col-span-2">
           <Button
             className="w-full bg-gradient-primary text-white shadow-elegant hover:opacity-95"
             onClick={() => startMut.mutate()}
