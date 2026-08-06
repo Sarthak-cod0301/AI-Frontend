@@ -17,7 +17,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ResultDetail } from "@/components/result-detail";
 import { formatDateTime, resumeDisplayName } from "@/lib/format";
 
-// Interview length is fixed and not user-configurable.
+
 const NUM_QUESTIONS = 10;
 
 export const Route = createFileRoute("/_app/interview")({
